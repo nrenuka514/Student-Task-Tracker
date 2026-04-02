@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Student Task Tracker | Add Task</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script>
+function toggleMarksSection(formId) {
+    const form = document.forms[formId];
+    const status = form["status"].value;
+    const marksContainer = document.getElementById("marks-section");
+
+    if (status === "Completed") {
+        marksContainer.style.display = "block";
+    } else {
+        marksContainer.style.display = "none";
+        form["marks"].value = "";
+    }
+}
+
+function validate() {
+    let form = document.forms["f"];
+    let name = form["name"].value.trim();
+    let task = form["task"].value.trim();
+    let status = form["status"].value;
+    let marks = form["marks"].value.trim();
+
+    if (name == "" || task == "") {
+        alert("⚠️ Please fill all fields!");
+        return false;
+    }
+    if (name.length < 2) {
+        alert("⚠️ Name must be at least 2 characters!");
+        return false;
+    }
+    if (task.length < 3) {
+        alert("⚠️ Task must be at least 3 characters!");
+        return false;
+    }
+    if (status === "Completed" && marks === "") {
+        alert("⚠️ Please add marks when task is completed.");
+        return false;
+    }
+    return true;
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+    toggleMarksSection("f");
+});
+</script>
+</head>
+
+<body>
+<!-- Progress Section -->
+{% if progress.total > 0 %}
+<div class="progress-section" style="--progress-width: {{ progress.percentage }}%;">
+    <h3>📊 Overall Progress</h3>
+    
+    <div class="progress-stats">
+        <div class="stat-box">
+            <div class="stat-number">{{ progress.total }}</div>
+            <div class="stat-label">Total Tasks</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number" style="color: #38ef7d;">{{ progress.completed }}</div>
+            <div class="stat-label">Completed</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-number" style="color: #ffa751;">{{ progress.pending }}</div>
+            <div class="stat-label">Pending</div>
+        </div>
+    </div>
+    
+    <div class="progress-bar-container">
+        <div class="progress-bar-fill">
+            {% if progress.percentage > 0 %}{{ progress.percentage }}%{% endif %}
+        </div>
+    </div>
+    <div class="progress-text">
+        {{ progress.completed }} of {{ progress.total }} tasks completed
+    </div>
+
+    <div class="summary-grid">
+        <div class="summary-card completed">
+            <div class="summary-card-icon">✔️</div>
+            <div class="summary-card-number">{{ progress.completed }}</div>
+            <div class="summary-card-label">Completed</div>
+        </div>
+        <div class="summary-card pending">
+            <div class="summary-card-icon">⏳</div>
+            <div class="summary-card-number">{{ progress.pending }}</div>
+            <div class="summary-card-label">Pending</div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<div class="container">
+    <h2>📚 Student Task Tracker</h2>
+    <p style="color: #999; font-size: 14px; margin-bottom: 20px;">Add a new task to get started!</p>
+    
+    <form name="f" action="/add" method="post" onsubmit="return validate()">
+        <label for="name">👤 Student Name</label>
+        <input type="text" id="name" name="name" placeholder="Enter student name" autocomplete="off"><br>
+        
+        <label for="task">📝 Task Description</label>
+        <input type="text" id="task" name="task" placeholder="Enter task description" autocomplete="off"><br>
+
+        <label for="status">✅ Status</label>
+        <select id="status" name="status" onchange="toggleMarksSection('f')">
+            <option value="Pending">⏳ Pending</option>
+            <option value="Completed">✔️ Completed</option>
+        </select><br>
+
+        <div id="marks-section" style="display: none;">
+            <label for="marks">📊 Marks</label>
+            <input type="number" id="marks" name="marks" placeholder="Enter marks" min="0" step="1" autocomplete="off"><br>
+        </div>
+
+        <input type="submit" value="➕ Add Task">
+    </form>
+
+    <br>
+    <a href="/view">📋 View All Tasks</a>
+</div>
+
+</body>
+</html>

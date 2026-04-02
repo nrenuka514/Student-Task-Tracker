@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>Edit Task | Student Task Tracker</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+<script>
+function toggleMarksSection(formId) {
+    const form = document.forms[formId];
+    const status = form["status"].value;
+    const marksContainer = document.getElementById("marks-section");
+
+    if (status === "Completed") {
+        marksContainer.style.display = "block";
+    } else {
+        marksContainer.style.display = "none";
+        form["marks"].value = "";
+    }
+}
+
+function validate() {
+    let form = document.forms["editForm"];
+    let name = form["name"].value.trim();
+    let task = form["task"].value.trim();
+    let status = form["status"].value;
+    let marks = form["marks"].value.trim();
+
+    if (name == "" || task == "") {
+        alert("⚠️ Please fill all fields!");
+        return false;
+    }
+    if (name.length < 2) {
+        alert("⚠️ Name must be at least 2 characters!");
+        return false;
+    }
+    if (task.length < 3) {
+        alert("⚠️ Task must be at least 3 characters!");
+        return false;
+    }
+    if (status === "Completed" && marks === "") {
+        alert("⚠️ Please add marks when task is completed.");
+        return false;
+    }
+    return true;
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+    toggleMarksSection("editForm");
+});
+</script>
+</head>
+
+<body>
+<div class="container">
+    <h2>✏️ Edit Task</h2>
+    <p style="color: #999; font-size: 14px; margin-bottom: 20px;">Update the task details below</p>
+    
+    <form name="editForm" method="post" onsubmit="return validate()">
+        <label for="name">👤 Student Name</label>
+        <input type="text" id="name" name="name" value="{{ record.name }}" placeholder="Enter student name" autocomplete="off"><br>
+        
+        <label for="task">📝 Task Description</label>
+        <input type="text" id="task" name="task" value="{{ record.task }}" placeholder="Enter task description" autocomplete="off"><br>
+
+        <label for="status">✅ Status</label>
+        <select id="status" name="status" onchange="toggleMarksSection('editForm')">
+            <option value="Pending" {% if record.status=='Pending' %}selected{% endif %}>⏳ Pending</option>
+            <option value="Completed" {% if record.status=='Completed' %}selected{% endif %}>✔️ Completed</option>
+        </select><br>
+
+        <div id="marks-section" style="display: none;">
+            <label for="marks">📊 Marks</label>
+            <input type="number" id="marks" name="marks" value="{{ record.marks|default('') }}" placeholder="Enter marks" min="0" step="1" autocomplete="off"><br>
+        </div>
+
+        <input type="submit" value="💾 Update Task">
+        <a href="/view"><button type="button">❌ Cancel</button></a>
+    </form>
+</div>
+
+</body>
+</html>
